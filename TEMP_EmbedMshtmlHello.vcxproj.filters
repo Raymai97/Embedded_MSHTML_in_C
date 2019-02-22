@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Manifest Include="src\app.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{c2a8a4fe-d58a-4b66-8c5b-ffa591b3c38a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\EmMshtml">
+      <UniqueIdentifier>{6731d461-74ec-4ef2-90bd-e6af612bbeb5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Base.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MainWin.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vc_patch.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EmMshtml\L1.c">
+      <Filter>src\EmMshtml</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Base.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MainWin.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MainWin0.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EmMshtml\API.h">
+      <Filter>src\EmMshtml</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EmMshtml\L1_0.h">
+      <Filter>src\EmMshtml</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
