@@ -1,5 +1,40 @@
 #include "MainWin0.h"
 
+static int MyColonExHandler(
+	char type, PCSTR pszId, int mode, void *pArg, void *pUser)
+{
+	RAYMAI_PRINTF_COLONEX_ENUM;
+	int r = ColonExReturnNoOp;
+#if defined(UNICODE)
+	UNREFERENCED_PARAMETER((type, pszId, mode, pArg, pUser));
+#else
+	UNREFERENCED_PARAMETER(pUser);
+	if (type == 's' && lstrcmpA(pszId, "wide") == 0) {
+		if (mode == ColonExModeFree) { MemFree(*(void**)pArg); }
+		else { r = MyColonEx_wide(mode, (void**)pArg); }
+	}
+#endif
+	return r;
+}
+
+#ifndef UNICODE
+static int MyColonEx_wide(int mode, void **ppsz)
+{
+	RAYMAI_PRINTF_COLONEX_ENUM;
+	PCWSTR const pszW = *ppsz;
+	int cbMax = WideCharToMultiByte(CP_ACP, 0, pszW, -1, NULL, 0, NULL, NULL);
+	if (mode == ColonExModePut) {
+		PSTR pszA = MemAllocZero(cbMax);
+		if (!pszA) {
+			return ColonExReturnAbort;
+		}
+		WideCharToMultiByte(CP_ACP, 0, pszW, -1, pszA, cbMax, NULL, NULL);
+		*ppsz = pszA;
+	}
+	return cbMax - 1;
+}
+#endif/* no UNICODE */
+
 static HWND My__Cw(void *pUser)
 {
 	LPCTSTR const lpszClass = TEXT("TEMP_EmbedMshtmlHello.MainWin");
@@ -221,11 +256,18 @@ static void My_OnCommand(MY_0B, int id, int nCode)
 		My_Set_UI_Options(pSelf);
 	}
 	else if (id == lbxLog) {
+		HWND const hCtl = GetDlgItem(pSelf->hwndSelf, lbxLog);
 		if (nCode == LBN_DBLCLK) {
-			if (MessageBox(pSelf->hwndSelf, TEXT("Clear Log?"),
-				TEXT(""), MB_ICONQUESTION | MB_YESNO) == IDYES) {
-				HWND const hCtl = GetDlgItem(pSelf->hwndSelf, lbxLog);
+			switch (MessageBox(pSelf->hwndSelf,
+				TEXT("Yes to Add Empty Line, No to Clear Log."),
+				TEXT("Quick action"), MB_ICONQUESTION | MB_YESNOCANCEL)) {
+			case IDYES:
+				SendMessage(hCtl, LB_ADDSTRING, 0, (LPARAM)TEXT(""));
+				SendMessage(hCtl, LB_SETCURSEL, SendMessage(hCtl, LB_GETCOUNT, 0, 0) - 1, 0);
+				break;
+			case IDNO:
 				SendMessage(hCtl, LB_RESETCONTENT, 0, 0);
+				break;
 			}
 		}
 	}
@@ -325,8 +367,22 @@ static void __cdecl My_AppendLog(MY_0B, PCSTR pszFmt, ...)
 {
 	HWND const hCtl = GetDlgItem(pSelf->hwndSelf, lbxLog);
 	va_list ap;
+	PTSTR pszNew = NULL;
 	va_start(ap, pszFmt);
-	SendMessageA(hCtl, LB_ADDSTRING, 0, (LPARAM)pszFmt);
+	raymai_vasprintf(&pszNew, pszFmt, ap);
+	if (pszNew) {
+		TCHAR *p = pszNew, *p0 = p;
+		for (; *p; ++p) if (*p == '\n') {
+			*p++ = 0;
+			SendMessage(hCtl, LB_ADDSTRING, 0, (LPARAM)p0);
+			p0 = p;
+		}
+		SendMessage(hCtl, LB_ADDSTRING, 0, (LPARAM)p0);
+		MemFree(pszNew); pszNew = NULL;
+	}
+	else {
+		SendMessage(hCtl, LB_ADDSTRING, 0, (LPARAM)TEXT("asprintf error!"));
+	}
 	SendMessage(hCtl, LB_SETCURSEL, SendMessage(hCtl, LB_GETCOUNT, 0, 0) - 1, 0);
 	va_end(ap);
 }
@@ -342,15 +398,13 @@ static void My_MoveCtl(MY_0B, int id, int x, int y, int w, int h)
 #define MY__BdSelf  MY_EmMshtml_BdSelf
 
 static void MyEmMshtml_OnDocumentComplete(MY__B,
-	PCWSTR pszUrlW)
+	PCWSTR pszUrl)
 {
 	MY__BdSelf;
 	My_AppendLog(pSelf,
 		"On Document Complete"
-		"  URL: %:w2t:s",
-		pszUrlW);
-	My_AppendLog(pSelf, "");
-	My_AppendLog(pSelf, "");
+		"\n   URL: %:wide:s",
+		pszUrl);
 }
 static void MyEmMshtml_OnLoadHtmlComplete(MY__B,
 	HRESULT hResult,
@@ -360,39 +414,39 @@ static void MyEmMshtml_OnLoadHtmlComplete(MY__B,
 	UNREFERENCED_PARAMETER(pUser);
 	My_AppendLog(pSelf,
 		"On LoadHtml Complete"
-		"  hResult: 0x%.8X",
+		"\n   hResult: 0x%.8X",
 		hResult);
 }
 
 static void MyEmMshtml_OnNavigating(MY__B,
-	PCWSTR pszUrlW,
-	PCWSTR pszTargetFrameNameW,
-	PCWSTR pszHeadersW,
+	PCWSTR pszUrl,
+	PCWSTR pszTargetFrameName,
+	PCWSTR pszHeaders,
 	BOOL *pCancel)
 {
 	MY__BdSelf;
 	UNREFERENCED_PARAMETER(pCancel);
 	My_AppendLog(pSelf,
 		"On Navigating"
-		"  URL: %:w2t:s"
-		"  Target Frame Name: %:w2t:s"
-		"  Headers: %:w2t:s",
-		pszUrlW,
-		pszTargetFrameNameW,
-		pszHeadersW);
+		"\n   URL: %:wide:s"
+		"\n   Target Frame Name: %:wide:s"
+		"\n   Headers: %:wide:s",
+		pszUrl,
+		pszTargetFrameName,
+		pszHeaders);
 }
 static void MyEmMshtml_OnNavigateComplete(MY__B,
-	PCWSTR pszUrlW)
+	PCWSTR pszUrl)
 {
 	MY__BdSelf;
 	My_AppendLog(pSelf,
 		"On Navigate Complete"
-		"  URL: %:w2t:s",
-		pszUrlW);
+		"\n   URL: %:wide:s",
+		pszUrl);
 }
 static void MyEmMshtml_OnNavigateError(MY__B,
-	PCWSTR pszUrlW,
-	PCWSTR pszTargetFrameNameW,
+	PCWSTR pszUrl,
+	PCWSTR pszTargetFrameName,
 	LONG statusCode,
 	BOOL *pCancel)
 {
@@ -400,11 +454,11 @@ static void MyEmMshtml_OnNavigateError(MY__B,
 	UNREFERENCED_PARAMETER(pCancel);
 	My_AppendLog(pSelf,
 		"On Navigation Error"
-		"  URL: %:w2t:s"
-		"  Target Frame Name: %:w2t:s"
-		"  Status Code: %ld",
-		pszUrlW,
-		pszTargetFrameNameW,
+		"\n   URL: %:wide:s"
+		"\n   Target Frame Name: %:w2t:s"
+		"\n   Status Code: %ld",
+		pszUrl,
+		pszTargetFrameName,
 		statusCode);
 }
 
@@ -427,18 +481,16 @@ static void MyEmMshtml_OnDownloadProgressChange(MY__B,
 	MY__BdSelf;
 	My_AppendLog(pSelf,
 		"On Download Progress Change"
-		"  Received %ld bytes"
-		"  Total %ld bytes",
+		"\n   Received %ld bytes, Total %ld bytes",
 		cbReceived,
 		cbTotal);
 }
 
 static void MyEmMshtml_OnTitleChange(MY__B,
-	PCWSTR pszNewTitleW)
+	PCWSTR pszNewTitle)
 {
 	MY__BdSelf;
 	My_AppendLog(pSelf,
-		"On Title Change"
-		"  NewTitle: %:w2t:s",
-		pszNewTitleW);
+		"On Title Change -> %:wide:s",
+		pszNewTitle);
 }

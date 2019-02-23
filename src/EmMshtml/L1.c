@@ -744,7 +744,7 @@ static HRESULT WINAPI MyWebBrowserEvents_Invoke(MY__B,
 		LONG const cbTotal = params[0].lVal;
 		if (MY_PC->OnDownloadProgressChange) {
 			MY_PC->OnDownloadProgressChange(MY_PC,
-				cbReceived == -1 ? cbTotal : cbReceived,
+				cbReceived,
 				cbTotal);
 		}
 	}

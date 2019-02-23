@@ -10,6 +10,9 @@
     <Filter Include="src\EmMshtml">
       <UniqueIdentifier>{6731d461-74ec-4ef2-90bd-e6af612bbeb5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="depend">
+      <UniqueIdentifier>{669e2b1d-a96a-4a2c-9f11-cffd4cc01c43}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Base.c">
@@ -43,6 +46,12 @@
     </ClInclude>
     <ClInclude Include="src\EmMshtml\L1_0.h">
       <Filter>src\EmMshtml</Filter>
+    </ClInclude>
+    <ClInclude Include="depend\RayPrinf\client\raymai\RayPrinf.h">
+      <Filter>depend</Filter>
+    </ClInclude>
+    <ClInclude Include="depend\StrOfInt\client\raymai\StrOfInt.h">
+      <Filter>depend</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

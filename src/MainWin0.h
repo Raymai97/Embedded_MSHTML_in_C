@@ -2,6 +2,18 @@
 #include "EmMshtml/API.h"
 #include <stdarg.h>
 
+static int MyColonExHandler(char, PCSTR, int, void *, void *);
+static int MyColonEx_wide(int mode, void **ppsz);
+
+#define RAYMAI_PRINTF_MALLOC0  MemAllocZero
+#define RAYMAI_PRINTF_MEMFREE  MemFree
+#define RAYMAI_PRINTF_CHARTYPE  TCHAR
+#define RAYMAI_PRINTF_ENABLE_ASCII_FMTSTR
+#define RAYMAI_PRINTF_ENABLE_COLONEX
+#define RAYMAI_PRINTF_ENABLE_LONGLONG
+#define RAYMAI_PRINTF_COLONEX_HANDLER  MyColonExHandler
+#include <raymai/RayPrinf.h>
+
 #define MY_0B  MySelf * const pSelf
 
 typedef struct MySelf MySelf;

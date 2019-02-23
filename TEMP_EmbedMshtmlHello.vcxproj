@@ -75,24 +75,28 @@
     <OutDir>$(SolutionDir)build\</OutDir>
     <IntDir>$(SolutionDir)int_dbg32\</IntDir>
     <TargetName>EmMshtml_dbg32</TargetName>
+    <IncludePath>$(ProjectDir)depend\RayPrinf\client;$(ProjectDir)depend\StrOfInt\client;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)build\</OutDir>
     <IntDir>$(SolutionDir)int_dbg64\</IntDir>
     <TargetName>EmMshtml_dbg64</TargetName>
+    <IncludePath>$(ProjectDir)depend\RayPrinf\client;$(ProjectDir)depend\StrOfInt\client;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)build\</OutDir>
     <IntDir>$(SolutionDir)int_rel32\</IntDir>
     <TargetName>EmMshtml_rel32</TargetName>
+    <IncludePath>$(ProjectDir)depend\RayPrinf\client;$(ProjectDir)depend\StrOfInt\client;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)build\</OutDir>
     <IntDir>$(SolutionDir)int_rel64\</IntDir>
     <TargetName>EmMshtml_rel64</TargetName>
+    <IncludePath>$(ProjectDir)depend\RayPrinf\client;$(ProjectDir)depend\StrOfInt\client;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -178,6 +182,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="depend\RayPrinf\client\raymai\RayPrinf.h" />
+    <ClInclude Include="depend\StrOfInt\client\raymai\StrOfInt.h" />
     <ClInclude Include="src\Base.h" />
     <ClInclude Include="src\EmMshtml\API.h" />
     <ClInclude Include="src\EmMshtml\L1_0.h" />
